@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Accueil from "./components/Accueil";
+import Checklist from "./components/Checklist";
 
 
 const App = () => {
@@ -8,6 +9,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Accueil />} />
+        <Route path="/checklist" element={<Checklist />} />
       </Routes>
     </Router>
   );
