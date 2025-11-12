@@ -7,7 +7,6 @@
   padding: 0;
 }
 
-/* === FOND GLOBAL === */
 .formulaire-background {
   background-color: #FFD166;
   width: 100vw;
@@ -15,10 +14,9 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 10vh; /* descend légèrement le bloc blanc */
+  padding-top: 10vh; 
 }
 
-/* === CONTENEUR === */
 .formulaire-container {
   background-color: #fff;
   border-radius: 20px;
@@ -32,7 +30,6 @@
   align-items: center;
 }
 
-/* === TITRE === */
 h2 {
   font-size: 1.8rem;
   font-weight: 700;
@@ -40,7 +37,6 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
-/* === FORMULAIRE === */
 form {
   display: flex;
   flex-direction: column;
@@ -77,7 +73,6 @@ textarea {
   min-height: 100px;
 }
 
-/* === BOUTON DE SAUVEGARDE === */
 button {
   width: 100%;
   background-color: #FFD166;
@@ -97,7 +92,6 @@ button:hover {
   transform: scale(1.02);
 }
 
-/* === LIEN RETOUR === */
 .retour-link {
   margin-top: 1.5rem;
   color: #000;
