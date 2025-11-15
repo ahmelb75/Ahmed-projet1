@@ -1,88 +1,99 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchChecklists,
+  deleteChecklist,
+  updateChecklist
+} from "../store/checklistSlice";
 import { useNavigate } from "react-router-dom";
 import Accueil from "../components/Accueil";
-import { checklistAPI } from "../services/api";
+import toast from "react-hot-toast";
 
 const AccueilView = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [etapes, setEtapes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { etapes, isLoading } = useSelector((state) => state.checklist);
 
   useEffect(() => {
-    loadEtapes();
+    dispatch(fetchChecklists());
   }, []);
 
+  const handleDelete = (id) => {
+    toast((t) => (
+      <span>
+        Supprimer cette checklist ?
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={() => {
+              dispatch(deleteChecklist(id));
+              toast.dismiss(t.id);
+              toast.success("Checklist supprimée !");
+            }}
+            className="px-3 py-1 bg-red-600 text-white rounded"
+          >
+            Oui
+          </button>
 
-  const loadEtapes = async () => {
-    setIsLoading(true);
-    try {
-      const data = await checklistAPI.getAll();
-
-      if (data && Array.isArray(data.response)) {
-        setEtapes(data.response);
-      } else if (data && Array.isArray(data.result)) {
-        setEtapes(data.result);
-      } else {
-        setEtapes([]);
-      }
-    } catch (error) {
-      console.error("Erreur lors du chargement des checklists:", error);
-      alert("Impossible de charger les checklists. Vérifie ta connexion.");
-    } finally {
-      setIsLoading(false);
-    }
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 bg-gray-300 rounded"
+          >
+            Annuler
+          </button>
+        </div>
+      </span>
+    ), {
+      duration: 5000,
+    });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Supprimer cette checklist ?")) return;
-
-    try {
-      await checklistAPI.delete(id);
-      await loadEtapes();
-    } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      alert("Impossible de supprimer la checklist.");
-    }
-  };
-
-  const handleEdit = async (id) => {
+  const handleEdit = (id) => {
     const etape = etapes.find((e) => e.id === id);
     if (!etape) return;
 
-    const nouveauTitre = window.prompt("Modifier le titre :", etape.title);
-    if (nouveauTitre === null) return;
+    let newTitle = etape.title;
+    let newDesc = etape.description;
 
-    const nouvelleDesc = window.prompt("Modifier la description :", etape.description);
-    if (nouvelleDesc === null) return;
+    toast((t) => (
+      <div className="flex flex-col gap-2">
+        <p>Modifier la checklist :</p>
 
-    try {
-      const payload = {
-        id: etape.id,
-        title: nouveauTitre,
-        description: nouvelleDesc,
-        todo: etape.todo || [], 
-      };
+        <input
+          defaultValue={etape.title}
+          onChange={(e) => (newTitle = e.target.value)}
+          className="border p-1 rounded"
+        />
 
-      console.log("📦 Payload envoyé à /checklist/update :", JSON.stringify(payload, null, 2));
+        <input
+          defaultValue={etape.description}
+          onChange={(e) => (newDesc = e.target.value)}
+          className="border p-1 rounded"
+        />
 
-      const response = await checklistAPI.update(payload);
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={() => {
+              dispatch(updateChecklist({ ...etape, title: newTitle, description: newDesc }));
+              toast.dismiss(t.id);
+              toast.success("Checklist mise à jour !");
+            }}
+            className="px-3 py-1 bg-green-600 text-white rounded"
+          >
+            Enregistrer
+          </button>
 
-      console.log("🟢 Réponse API :", response);
-
-      if (response.done) {
-        alert("✅ Checklist mise à jour avec succès !");
-        await loadEtapes();
-      } else {
-        alert("❌ Erreur : la mise à jour a échoué.");
-      }
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour :", error);
-      alert("⚠️ Erreur : impossible de modifier la checklist.");
-    }
-  };
-
-  const handleNavigateToChecklist = () => {
-    navigate("/checklist");
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 bg-gray-300 rounded"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 8000,
+    });
   };
 
   return (
@@ -90,7 +101,7 @@ const AccueilView = () => {
       etapes={etapes}
       onDelete={handleDelete}
       onEdit={handleEdit}
-      onNavigateToChecklist={handleNavigateToChecklist}
+      onNavigateToChecklist={() => navigate("/checklist")}
       isLoading={isLoading}
     />
   );

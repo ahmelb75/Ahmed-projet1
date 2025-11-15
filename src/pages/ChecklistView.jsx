@@ -1,66 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchChecklists,
+  updateChecklist,
+  deleteChecklist
+} from "../store/checklistSlice";
+
 import Checklist from "../components/Checklist";
-import { checklistAPI } from "../services/api";
+import toast from "react-hot-toast";
 
 const ChecklistView = () => {
-  const [taches, setTaches] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { etapes: taches, isLoading } = useSelector((state) => state.checklist);
 
   useEffect(() => {
-    loadTaches();
+    dispatch(fetchChecklists());
   }, []);
 
-  const loadTaches = async () => {
-    setIsLoading(true);
-    try {
-      const data = await checklistAPI.getAll();
-      console.log("📋 Données reçues :", data);
+  const handleToggleTache = (id, faite) => {
+    const tache = taches.find((t) => t.id === id);
+    if (!tache) return;
 
-      const rawTaches = data.response || data.result || [];
-      const normalisees = rawTaches.map((t) => ({
-        ...t,
-        faite: t.statut === 2, 
-      }));
+    const nouveauStatut = faite ? 2 : 0;
 
-      setTaches(normalisees);
-    } catch (error) {
-      console.error("Erreur lors du chargement des tâches:", error);
-      alert("Impossible de charger les tâches. Vérifie ta connexion.");
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(updateChecklist({ ...tache, statut: nouveauStatut }));
+    toast.success("Statut mis à jour !");
   };
 
-  const handleToggleTache = async (id, faite) => {
-    try {
-      const nouveauStatut = faite ? 2 : 0; 
-      const response = await checklistAPI.updateStatut(id, nouveauStatut);
-      console.log("🌀 Mise à jour statut checklist", id, "→", nouveauStatut, response);
+  const handleDeleteAll = () => {
+    toast((t) => (
+      <span>
+        Supprimer toutes les tâches ?
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={() => {
+              taches.forEach((t) => dispatch(deleteChecklist(t.id)));
+              toast.dismiss(t.id);
+              toast.success("Toutes les tâches ont été supprimées !");
+            }}
+            className="px-3 py-1 bg-red-600 text-white rounded"
+          >
+            Oui
+          </button>
 
-      if (response.done) {
-        setTaches((prev) =>
-          prev.map((t) =>
-            t.id === id ? { ...t, faite, statut: nouveauStatut } : t
-          )
-        );
-      } else {
-        alert("Impossible de modifier le statut de cette checklist.");
-      }
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de la tâche:", error);
-      alert("Impossible de mettre à jour la tâche.");
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    if (!window.confirm("Voulez-vous vraiment supprimer toutes les tâches ?")) return;
-    try {
-      await checklistAPI.deleteAll();
-      setTaches([]);
-    } catch (error) {
-      console.error("Erreur lors de la suppression des tâches:", error);
-      alert("Impossible de supprimer les tâches.");
-    }
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 bg-gray-300 rounded"
+          >
+            Annuler
+          </button>
+        </div>
+      </span>
+    ), {
+      duration: 5000,
+    });
   };
 
   return (

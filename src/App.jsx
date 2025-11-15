@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
 import AccueilView from "./pages/AccueilView";
 import FormulaireView from "./pages/FormulaireView";
 import ChecklistView from "./pages/ChecklistView";
@@ -7,6 +9,9 @@ import ChecklistView from "./pages/ChecklistView";
 const App = () => {
   return (
     <Router>
+      {}
+      <Toaster position="top-center" />
+
       <Routes>
         <Route path="/" element={<AccueilView />} />
         <Route path="/formulaire" element={<FormulaireView />} />

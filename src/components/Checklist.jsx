@@ -19,21 +19,26 @@ const Checklist = ({
         ) : (
           <ul className="taches-list">
             {taches.length === 0 && <div className="vide">Aucune tâche.</div>}
-            {taches.map((tache) => (
-              <li
-                key={tache.id}
-                className={`tache-item ${tache.faite ? "faite" : ""}`}
-                onClick={() => onToggleTache(tache.id, !tache.faite)}
-              >
-                <input
-                  type="checkbox"
-                  checked={!!tache.faite}
-                  onChange={() => onToggleTache(tache.id, !tache.faite)}
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <span>{tache.titre || tache.title || "Sans titre"}</span>
-              </li>
-            ))}
+
+            {taches.map((tache) => {
+              const estFaite = tache.statut === 2;
+
+              return (
+                <li
+                  key={tache.id}
+                  className={`tache-item ${estFaite ? "faite" : ""}`}
+                  onClick={() => onToggleTache(tache.id, !estFaite)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={estFaite}
+                    onChange={() => onToggleTache(tache.id, !estFaite)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <span>{tache.titre || tache.title || "Sans titre"}</span>
+                </li>
+              );
+            })}
           </ul>
         )}
 

@@ -14,7 +14,7 @@ const Accueil = ({
       <div className="accueil-wrapper">
         <div className="accueil-container">
           <h1>Accueil</h1>
-          <p className="subtitle">🕒 Créé depuis 3 jours</p>
+          <p className="subtitle"></p>
 
           {isLoading ? (
             <div className="vide">Chargement...</div>

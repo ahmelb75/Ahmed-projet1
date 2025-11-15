@@ -1,46 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { createChecklist } from "../store/checklistSlice";
 import { useNavigate } from "react-router-dom";
 import Formulaire from "../components/Formulaire";
-import { checklistAPI } from "../services/api";
+import toast from "react-hot-toast";
 
 const FormulaireView = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [titre, setTitre] = useState("");
   const [description, setDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+
+  const titreRef = useRef(null);
+
+  const { isLoading } = useSelector((state) => state.checklist);
 
   const handleSubmit = async () => {
     if (!titre.trim()) {
-      alert("⚠️ Le titre est obligatoire !");
+      toast.error("⚠️ Le titre est obligatoire");
+      titreRef.current?.focus();
       return;
     }
 
-    setIsLoading(true);
+    const newChecklist = {
+      title: titre,
+      description,
+      todo: [],
+    };
 
     try {
-      const newChecklist = {
-        title: titre,
-        description: description,
-        todo: [] 
-      };
+      await dispatch(createChecklist(newChecklist)).unwrap();
 
-      const response = await checklistAPI.create(newChecklist);
+      toast.success("Checklist créée 🎉");
 
-      console.log("Réponse API :", response);
+      setTitre("");
+      setDescription("");
 
-if (response && response.id) {
-  alert("✅ Checklist créée avec succès !");
-  navigate("/");
-} else {
-  console.warn("Réponse inattendue :", response);
-  alert("⚠️ Une erreur est survenue lors de la création.");
-}
-
-    } catch (error) {
-      console.error("❌ Erreur lors de la création de la checklist :", error.response?.data || error.message);
-      alert("🚫 Impossible de créer la checklist. Vérifie ta connexion ou ton token.");
-    } finally {
-      setIsLoading(false);
+      navigate("/");
+    } catch (err) {
+      toast.error("Erreur lors de la création ❌");
     }
   };
 
@@ -52,6 +51,7 @@ if (response && response.id) {
       onDescriptionChange={setDescription}
       onSubmit={handleSubmit}
       isLoading={isLoading}
+      titreRef={titreRef} 
     />
   );
 };
